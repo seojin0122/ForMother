@@ -88,4 +88,11 @@ public class EquipmentService {
 			throw new Exception("품명은 필수입니다.");
 		}
 	}
+	
+	public List<Equipment> searchByStickerNo(String stickerNo) {
+		if (stickerNo == null || stickerNo.trim().isEmpty()) {
+			return equipmentDao.selectAll();
+		}
+		return equipmentDao.searchByStickerNo(stickerNo);
+	}
 }

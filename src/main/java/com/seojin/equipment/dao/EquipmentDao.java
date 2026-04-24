@@ -59,7 +59,7 @@ public class EquipmentDao {
 			}
 		}
 	}
-
+	
 	public boolean existsByStickerNo(String stickerNo) {
 		return selectByStickerNo(stickerNo) != null;
 	}
@@ -80,6 +80,17 @@ public class EquipmentDao {
 		for (Equipment equipment : equipments) {
 			if (equipment.getStatus() != null &&
 				equipment.getStatus().equals(status)) {
+				result.add(equipment);
+			}
+		}
+		return result;
+	}
+	
+	public List<Equipment> searchByStickerNo(String stickerNo) {
+		List<Equipment> result = new ArrayList<>();
+		for (Equipment equipment : equipments) {
+			if (equipment.getStickerNo() != null &&
+				equipment.getStickerNo().contains(stickerNo)) {
 				result.add(equipment);
 			}
 		}

@@ -7,6 +7,8 @@ import com.seojin.equipment.dto.Equipment;
 import com.seojin.equipment.dto.User;
 import com.seojin.equipment.service.EquipmentService;
 import com.seojin.equipment.service.UserService;
+import com.seojin.equipment.dto.EquipmentHistory;
+import com.seojin.equipment.service.EquipmentHistoryService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,6 +23,7 @@ public class MainController extends HttpServlet {
 
 	private UserService userService = UserService.getInstance();
 	private EquipmentService equipmentService = EquipmentService.getInstance();
+	private EquipmentHistoryService historyService = EquipmentHistoryService.getInstance();
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -76,6 +79,18 @@ public class MainController extends HttpServlet {
 			break;
 		case "equipment-delete":
 			equipmentDelete(request, response);
+			break;
+		case "history-list":
+			historyList(request, response);
+			break;
+		case "history-regist-form":
+			historyRegistForm(request, response);
+			break;
+		case "history-regist":
+			historyRegist(request, response);
+			break;
+		case "equipment-search":
+			equipmentSearch(request, response);
 			break;
 		default:
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -164,11 +179,14 @@ public class MainController extends HttpServlet {
 
 		if (equipment == null) {
 			request.setAttribute("error", "해당 장비를 찾을 수 없습니다.");
-			request.getRequestDispatcher("/equipment/list.jsp").forward(request, response);
+			equipmentList(request, response);
 			return;
 		}
 
+		List<EquipmentHistory> histories = historyService.getHistoryByStickerNo(stickerNo);
+
 		request.setAttribute("equipment", equipment);
+		request.setAttribute("histories", histories);
 		request.getRequestDispatcher("/equipment/detail.jsp").forward(request, response);
 	}
 	
@@ -230,5 +248,75 @@ public class MainController extends HttpServlet {
 			request.setAttribute("error", e.getMessage());
 			equipmentList(request, response);
 		}
+	}
+	
+	private void historyList(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		List<EquipmentHistory> histories = historyService.getHistoryList();
+		request.setAttribute("histories", histories);
+		request.getRequestDispatcher("/history/list.jsp").forward(request, response);
+	}
+
+	private void historyRegistForm(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String stickerNo = request.getParameter("stickerNo");
+		request.setAttribute("stickerNo", stickerNo);
+		request.getRequestDispatcher("/history/regist.jsp").forward(request, response);
+	}
+
+	private void historyRegist(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String historyDate = request.getParameter("historyDate");
+		String companyName = request.getParameter("companyName");
+		String stickerNo = request.getParameter("stickerNo");
+		String productName = request.getParameter("productName");
+		String manager = request.getParameter("manager");
+		String actionType = request.getParameter("actionType");
+		String partnerName = request.getParameter("partnerName");
+		String detail = request.getParameter("detail");
+
+		EquipmentHistory history = new EquipmentHistory();
+		history.setHistoryDate(historyDate);
+		history.setCompanyName(companyName);
+		history.setStickerNo(stickerNo);
+		history.setProductName(productName);
+		history.setManager(manager);
+		history.setActionType(actionType);
+		history.setPartnerName(partnerName);
+		history.setDetail(detail);
+
+		try {
+			historyService.registHistory(history);
+			response.sendRedirect(request.getContextPath() + "/main?action=equipment-detail&stickerNo=" + stickerNo);
+		} catch (Exception e) {
+			request.setAttribute("error", e.getMessage());
+			request.setAttribute("history", history);
+			request.getRequestDispatcher("/history/regist.jsp").forward(request, response);
+		}
+	}
+	
+	private void equipmentSearch(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String keyword = request.getParameter("keyword");
+		String status = request.getParameter("status");
+
+		List<Equipment> equipments;
+
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			equipments = equipmentService.searchByStickerNo(keyword);
+			request.setAttribute("keyword", keyword);
+		} else if (status != null && !status.trim().isEmpty()) {
+			equipments = equipmentService.searchByStatus(status);
+			request.setAttribute("status", status);
+		} else {
+			equipments = equipmentService.getEquipmentList();
+		}
+
+		request.setAttribute("equipments", equipments);
+		request.getRequestDispatcher("/equipment/list.jsp").forward(request, response);
 	}
 }

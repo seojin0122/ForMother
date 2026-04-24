@@ -30,6 +30,10 @@ public class SessionFilter extends HttpFilter implements Filter {
 		protectedActions.add("equipment-update-form");
 		protectedActions.add("equipment-update");
 		protectedActions.add("equipment-delete");
+		protectedActions.add("history-list");
+		protectedActions.add("history-regist-form");
+		protectedActions.add("history-regist");
+		protectedActions.add("equipment-search");
 	}
 
 	@Override

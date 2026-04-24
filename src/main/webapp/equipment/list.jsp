@@ -4,10 +4,17 @@
 <%@ page import="com.seojin.equipment.dto.Equipment"%>
 <%@ page import="com.seojin.equipment.dto.User"%>
 <%
-	String root = request.getContextPath();
-	List<Equipment> equipments = (List<Equipment>) request.getAttribute("equipments");
-	User loginUser = (User) session.getAttribute("loginUser");
-	String error = (String) request.getAttribute("error");
+String root = request.getContextPath();
+List<Equipment> equipments = (List<Equipment>) request.getAttribute("equipments");
+User loginUser = (User) session.getAttribute("loginUser");
+String error = (String) request.getAttribute("error");
+String keyword = (String) request.getAttribute("keyword");
+String status = (String) request.getAttribute("status");
+
+if (keyword == null)
+	keyword = "";
+if (status == null)
+	status = "";
 %>
 <!DOCTYPE html>
 <html>
@@ -105,10 +112,35 @@ a.button:hover {
 
 	<div class="container">
 		<h2>장비 목록</h2>
+		<div
+			style="margin-bottom: 20px; padding: 15px; background: #f7f7f7; border: 1px solid #ddd;">
+			<form action="<%=root%>/main" method="get"
+				style="margin-bottom: 10px;">
+				<input type="hidden" name="action" value="equipment-search">
+				<label><strong>스티커번호 검색</strong></label> <input type="text"
+					name="keyword" value="<%=keyword%>" placeholder="예: SC-001"
+					style="padding: 8px; width: 220px; margin-left: 10px;">
+				<button type="submit" style="padding: 8px 12px;">검색</button>
+			</form>
 
+			<form action="<%=root%>/main" method="get">
+				<input type="hidden" name="action" value="equipment-search">
+				<label><strong>상태별 조회</strong></label> <select name="status"
+					style="padding: 8px; margin-left: 20px;">
+					<option value="">전체</option>
+					<option value="회사보유" <%="회사보유".equals(status) ? "selected" : ""%>>회사보유</option>
+					<option value="출고중" <%="출고중".equals(status) ? "selected" : ""%>>출고중</option>
+					<option value="A/S중" <%="A/S중".equals(status) ? "selected" : ""%>>A/S중</option>
+					<option value="회수예정" <%="회수예정".equals(status) ? "selected" : ""%>>회수예정</option>
+				</select>
+				<button type="submit" style="padding: 8px 12px;">조회</button>
+				<a class="button" href="<%=root%>/main?action=equipment-list">초기화</a>
+			</form>
+		</div>
 		<div class="top-actions">
-			<a class="button"
-				href="<%=root%>/main?action=equipment-regist-form">장비 등록</a>
+			<a class="button" href="<%=root%>/main?action=equipment-regist-form">장비
+				등록</a> <a class="button" href="<%=root%>/main?action=history-list">이력
+				목록</a>
 		</div>
 
 		<table>
